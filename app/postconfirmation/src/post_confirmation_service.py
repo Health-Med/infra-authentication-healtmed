@@ -8,9 +8,9 @@ def post_confirmation_service(event, logger):
     username = event['userName']
     user_attributes = event['request']['userAttributes']
 
-    if 'custom:crm' in user_attributes:
+    if 'custom:CRM' in user_attributes:
         group = 'doctors'
-    elif 'custom:cpf' in user_attributes:
+    elif 'custom:CPF' in user_attributes:
         group = 'patients'
     elif 'email' in user_attributes:
         group = 'patients'

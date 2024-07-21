@@ -1,26 +1,28 @@
 def pre_sign_up(event, logger):
-    user_type = event['request']['userAttributes'].get('custom:userType')
+    user_type = event['request']['userAttributes'].get('custom:USER_TYPE')
     logger.info(f'user_type: {user_type}')
 
-    if user_type == 'Medico':
+    if user_type.lower() == 'medico':
         crm = event['request']['userAttributes'].get('custom:CRM')
         if not validate_crm(crm):
             logger.error(f'CRM inválido: {crm}')
             event['response']['autoConfirmUser'] = False
-            return event
+            raise Exception(f'CRM inválido: {crm}')
 
-    if user_type == 'Paciente':
+    if user_type.lower() == 'paciente':
         cpf = event['request']['userAttributes'].get('custom:CPF')
-        username = event['request']['userAttributes'].get('username')
+        email = event['request']['userAttributes'].get('email')
 
         if cpf:
             if not validate_cpf(cpf, logger):
                 logger.error(f'CPF inválido: {cpf}')
                 event['response']['autoConfirmUser'] = False
-                return event
-        elif is_valid_email(username):
-            event['response']['autoConfirmUser'] = False
-            return event
+                raise Exception(f'CPF inválido: {cpf}')
+        elif email:
+            if not is_valid_email(email):
+                logger.error(f'email inválido: {email}')
+                event['response']['autoConfirmUser'] = False
+                raise Exception(f'email inválido: {email}')
 
     event['response']['autoConfirmUser'] = True
     return event
@@ -28,7 +30,10 @@ def pre_sign_up(event, logger):
 
 def validate_crm(crm):
     """ TO-DO: implementar a Lógica para validação do CRM (Conselho Regional de Medicina) fornecido"""
-    return True
+    if not crm:
+        return False
+
+    return crm.isdigit() and len(crm) >= 6
 
 
 def is_valid_email(username):
